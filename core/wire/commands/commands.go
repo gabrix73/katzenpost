@@ -355,6 +355,13 @@ func sendRetrievePacketReplyFromBytes(b []byte, cmds *Commands) (Command, error)
 	if len(b) < constants.SURBIDLength {
 		return nil, errInvalidCommand
 	}
+	maxPayload := 0
+	if cmds != nil {
+		maxPayload = cmds.MaxCommandSize()
+	}
+	if maxPayload > 0 && len(b) > maxPayload {
+		return nil, errInvalidCommand
+	}
 	c := new(SendRetrievePacketReply)
 	copy(c.SURBID[:], b[:constants.SURBIDLength])
 	c.Payload = make([]byte, len(b[constants.SURBIDLength:]))

@@ -508,6 +508,10 @@ func (p *pki) getDocument(ctx context.Context, epoch uint64) ([]byte, []byte, *c
 	if p.c.PKIClient == nil {
 		return nil, nil, nil, errors.New("client/pki: PKIClient not initialized")
 	}
+	if len(resp.Payload) > cpki.MaxConsensusCeiling {
+		p.log.Errorf("Provider returned document exceeding MaxConsensusCeiling: %d > %d", len(resp.Payload), cpki.MaxConsensusCeiling)
+		return nil, nil, nil, errBadConsensus
+	}
 	d, err = p.c.PKIClient.Deserialize(resp.Payload)
 	if err != nil {
 		p.log.Errorf("Failed to deserialize consensus received from Gateway: %v", err)
